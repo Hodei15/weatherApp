@@ -1,0 +1,71 @@
+﻿@page "/weather"
+@using System.Globalization
+@using WeatherApp.Models
+@using WeatherApp.Utilities
+@inject HttpClient Client
+
+<h3>Weather App</h3>
+
+<div class="input-group mb-3 mt-3">
+    @*mb-3 margin button 3, mt-3 margin top 3*@
+    <input type="text" class="form-control" placeholder="City Name" @bind=city />
+    <div class="input-group-append">
+        <button @onclick=GetWeather class="btn btn-outline-secondary" type="button">Search</button>
+    </div>
+</div>
+
+@if (@weatherData != null)
+{
+    <div class="text-center">
+        <p class="display-5">@city</p>
+        <p class="display-1">@weatherData.current_weather.temperature ºC</p>
+        <p class="display-6">@WeatherCode.Convert(weatherData.current_weather.weathercode)</p>
+    </div>
+}
+
+@if (@weatherData != null)
+{
+    <div class="card-group">
+        @for (int i=0; i < @weatherData.daily.time.Length; i++)
+        {
+            <WeatherApp.Components.WeatherCard
+                Day=@weatherData.daily.time[i]
+                MinWeatherData="@weatherData.daily.apparent_temperature_min[i]"
+                MaxWeatherData="@weatherData.daily.apparent_temperature_max[i]"
+            />
+        }
+    </div>
+}
+
+
+@code {
+    string city = "";
+    string aaa = "";
+    string bbb = "";
+    WeatherModel  weatherData;
+
+    async Task GetWeather()
+    {   //Page llama al servicio
+        var cityData = await GetCityData();
+        aaa = (cityData.results[0].lat).ToString(); //tiene coma decimal
+        bbb = (cityData.results[0].lon).ToString(); //tiene coma decimal
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");  //para que tenga punto decimal
+        weatherData = await Client.GetFromJsonAsync<WeatherModel>(Endpoints.GetWeatherEndpoint(cityData.results[0].lat, cityData.results[0].lon));
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("es-es");
+    }
+
+    async Task<CityData> GetCityData()
+    {
+        var cityData = await Client
+        .GetFromJsonAsync<CityData>(Endpoints.GetGeoApifyEndpoint(city));
+        //tipo devuelto: CityData; llama al método estático .GetGeoApi... de la clase Endpoints.
+        return cityData;
+
+        //PARA QUITAR EL SUBRAYADO VERDE EN return cityData
+        //CityData? cityData;
+        //cityData = await Client
+        //        .GetFromJsonAsync<CityData>(Endpoints.GetGeoApifyEndpoint(city));
+        ////tipo devuelto: CityData; llama al método estático .GetGeoApi... de la clase Endpoints.
+        //return cityData?.results.Length>0 ? cityData : new CityData(); //operador ternario ? :
+    }
+}

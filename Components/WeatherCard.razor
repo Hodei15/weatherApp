@@ -1,0 +1,25 @@
+﻿
+<div class="card border-dark mb-3" 
+    style="max-width:50rem;">
+    <div class="text-center" style="font-size:xx-small">
+        <div class="card-header">@Day</div>
+        <div class="card-body">
+            <p class="card-title"> @MinWeatherData ºC/ @MaxWeatherData ºC</p>
+            <p class="card-text">@Summary</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Day { get; set; }
+    [Parameter]
+    public float MinWeatherData { get; set; }
+    [Parameter]
+    public float MaxWeatherData { get; set; } 
+    [Parameter]
+    public string Summary { get; set; }
+    //agrego 4 propiedades
+    //parameter pq voy a recibir datos
+    //NO UTILIZO Summary EN TODO EL EJERCICIO
+}
